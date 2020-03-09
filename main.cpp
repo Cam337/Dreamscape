@@ -20,6 +20,8 @@ void setupCallbacks(GLFWwindow* window)
 	glfwSetScrollCallback(window, Window::scrollCallback);
 	// Set the window resize callback.
 	glfwSetWindowSizeCallback(window, Window::resizeCallback);
+	// Hide cursor for FPS Camera
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void setupOpenglSettings()

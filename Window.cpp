@@ -28,7 +28,11 @@ namespace
 	bool pointLightOn = true;
 	bool pointLightMovement = false;
 	bool directionalLightOn = true;
-
+	
+	// FPS Mouse Variables
+	bool initCursorPos = true;
+	float lastX = 0.0f;
+	float lastY = 0.0f;
 
 	// Trackball Variables
 	int movement = NONE;
@@ -236,7 +240,7 @@ bool Window::initializeObjects()
 	// body
 	transform = glm::mat4(1.0f);
 	bodyT = new Transform(transform);
-	body = new Geometry("sphere.obj", 1.0f);
+	body = new Geometry("resources/objects/sphere.obj", 1.0f);
 	robot->addChild(bodyT);
 	bodyT->addChild(body);
 
@@ -244,7 +248,7 @@ bool Window::initializeObjects()
 	transform = glm::mat4(1.0f);
 	transform *= glm::translate(glm::vec3(0.0f, 1.2f, 0.0f));
 	headT = new Transform(transform);
-	head = new Geometry("head_s.obj", 1.0f, glm::vec3(1.0f, 0.0f, 0.5f));
+	head = new Geometry("resources/objects/head_s.obj", 1.0f, glm::vec3(1.0f, 0.0f, 0.5f));
 	robot->addChild(headT);
 	headT->addChild(head);
 
@@ -257,7 +261,7 @@ bool Window::initializeObjects()
 	transform *= glm::translate(glm::vec3(0.3f, -0.2f, 0.8f));
 	transform *= glm::scale(glm::vec3(0.1f, 0.1f, 0.1f));
 	eye2 = new Transform(transform);
-	eye = new Geometry("eyeball_s.obj", 1.0f, glm::vec3(1.0f));
+	eye = new Geometry("resources/objects/eyeball_s.obj", 1.0f, glm::vec3(1.0f));
 	headT->addChild(eye1);
 	eye1->addChild(eye);
 	headT->addChild(eye2);
@@ -273,7 +277,7 @@ bool Window::initializeObjects()
 	transform *= glm::translate(glm::vec3(0.2f, 0.4f, -0.2f));
 	transform *= glm::scale(glm::vec3(0.5f, 0.4f, 0.5f));
 	antenna2 = new Transform(transform);
-	antenna = new Geometry("antenna_s.obj", 1.0f, glm::vec3(1.0f));
+	antenna = new Geometry("resources/objects/antenna_s.obj", 1.0f, glm::vec3(1.0f));
 	headT->addChild(antenna1);
 	antenna1->addChild(antenna);
 	headT->addChild(antenna2);
@@ -291,7 +295,7 @@ bool Window::initializeObjects()
 	transform *= glm::scale(glm::vec3(0.8f, 0.3f, 0.8f));
 	transform *= glm::translate(glm::vec3(0.0f, -0.3f, 0.0f));
 	limb2 = new Transform(transform);
-	limb = new Geometry("antenna_s.obj", 1.0f, glm::vec3(1.0f));
+	limb = new Geometry("resources/objects/antenna_s.obj", 1.0f, glm::vec3(1.0f));
 	robot->addChild(limb1);
 	limb1->addChild(limb);
 	limb1->addChild(limb2);
@@ -481,9 +485,14 @@ void Window::idleCallback()
 
 void Window::displayCallback(GLFWwindow* window)
 {
+	// Time keeping
 	float currentFrame = glfwGetTime();
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
+
+	// Process input for FPS Camera
+	processInput(window);
+
 
 	// Clear the color and depth buffers.
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -662,18 +671,6 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 		case GLFW_KEY_P:
 			//currentObj->updatePointSize(0.8f);
 			break;
-		case GLFW_KEY_W:
-			camera.ProcessKeyboard(FORWARD, deltaTime*50.0f);
-			break;
-		case GLFW_KEY_A:
-			camera.ProcessKeyboard(LEFT, deltaTime * 50.0f);
-			break;
-		case GLFW_KEY_S:
-			camera.ProcessKeyboard(BACKWARD, deltaTime * 50.0f);
-			break;
-		case GLFW_KEY_D:
-			camera.ProcessKeyboard(RIGHT, deltaTime * 50.0f);
-			break;
 		case GLFW_KEY_Z:
 			//updateViewMatrix(0.8f);
 			break;
@@ -687,6 +684,18 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		}
 	}
+}
+
+void Window::processInput(GLFWwindow* window)
+{
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
@@ -756,6 +765,21 @@ glm::vec3 Window::trackBallMapping(glm::vec3 point)
 
 void Window::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (initCursorPos) 
+	{
+		lastX = xpos;
+		lastY = ypos;
+		initCursorPos = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+	/*
 	glm::vec3 direction;
 	float rotAngle, velocity;
 	glm::vec3 curPoint;
@@ -783,6 +807,7 @@ void Window::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 	default:
 		break;
 	}
+	*/
 }
 
 void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)

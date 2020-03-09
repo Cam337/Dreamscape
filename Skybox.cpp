@@ -127,12 +127,12 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 
 	std::vector<std::string> faces
 	{
-		"skybox/posx.jpg",
-		"skybox/negx.jpg",
-		"skybox/posy.jpg",
-		"skybox/negy.jpg",
-		"skybox/posz.jpg",
-		"skybox/negz.jpg"
+		"resources/skybox/posx.jpg",
+		"resources/skybox/negx.jpg",
+		"resources/skybox/posy.jpg",
+		"resources/skybox/negy.jpg",
+		"resources/skybox/posz.jpg",
+		"resources/skybox/negz.jpg"
 	};
 
 	cubemapTexture = loadCubemap(faces);
