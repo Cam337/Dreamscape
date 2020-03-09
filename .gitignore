@@ -1,0 +1,14 @@
+# gitignore
+
+Debug/
+packages/
+packages.config
+Release/
+Model/
+textures/
+skybox/
+*.obj
+*.vcxproj
+*.vcxproj.*
+*.sln
+.vs/
