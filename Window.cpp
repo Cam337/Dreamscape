@@ -67,10 +67,12 @@ namespace
 	Transform* limb4;
 	Geometry* limb;
 
-	Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-	float fovy = 60;
-	float near = 1;
-	float far = 1000;
+	// Water
+	Water* water;
+
+	Camera camera(glm::vec3(0.0f, 10.0f, 30.0f));
+	float near = 0.1f;
+	float far = 100.0f;
 	glm::mat4 view = camera.GetViewMatrix(); // View matrix, defined by eye, center and up.
 	glm::mat4 projection; // Projection matrix.
 
@@ -113,6 +115,12 @@ namespace
 	GLuint trackViewLoc;
 	GLuint trackColorLoc;
 
+	// Water
+	GLuint waterShader;
+	GLuint waterProjectionLoc; // Location of projection in shader.
+	GLuint waterViewLoc; // Location of view in shader.
+	GLuint waterModelLoc; // Location of model in shader.
+
 	std::vector<BezierCurve*> curves;
 	BezierCurve* currentCurve;
 	int numCurves;
@@ -130,6 +138,7 @@ bool Window::initializeProgram()
 	phongShader = LoadShaders("shaders/phongShader.vert", "shaders/phongShader.frag");
 	skyboxShader = LoadShaders("shaders/skybox.vert", "shaders/skybox.frag");
 	trackShader = LoadShaders("shaders/track.vert", "shaders/track.frag");
+	waterShader = LoadShaders("shaders/water.vert", "shaders/water.frag");
 
 	// This shader program is for displaying your rasterizer results
 	// DO NOT MODIFY THESE SHADER PROGRAMS
@@ -189,14 +198,22 @@ bool Window::initializeProgram()
 	trackViewLoc = glGetUniformLocation(trackShader, "view");
 	trackColorLoc = glGetUniformLocation(trackShader, "color");
 
+	// Water
+	glUseProgram(waterShader);
+	waterProjectionLoc = glGetUniformLocation(waterShader, "projection");
+	waterViewLoc = glGetUniformLocation(waterShader, "view");
+	waterModelLoc = glGetUniformLocation(waterShader, "model");
+
 	return true;
 }
 
 bool Window::initializeObjects()
 {
-	projection = glm::perspective(glm::radians(fovy),
+	projection = glm::perspective(glm::radians(camera.Zoom),
 		(float)width / (float)height, near, far);
 
+
+	cube = new Cube(100.0f);
 	/*
 	// Create a cube of size 5.
 	// cube = new Cube(5.0f);
@@ -328,7 +345,6 @@ bool Window::initializeObjects()
 			newRobot->addChild(robot);
 		}
 
-	// Set cube to be the first to display
 	// currentObj = bunny;
 
 	// Skybox
@@ -347,6 +363,8 @@ bool Window::initializeObjects()
 	// start robot on track
 	robotSquad->translate(points[0]);
 
+	// Water
+	water = new Water(0.0f, 0.0f, 0.0f);
 
 
 	return true;
@@ -355,12 +373,14 @@ bool Window::initializeObjects()
 void Window::cleanUp()
 {
 	// Deallcoate the objects.
-	delete bunny;
+	//delete bunny;
 	
 	// Delete the shader programs.
 	glDeleteProgram(program);
 	glDeleteProgram(phongShader);
 	glDeleteProgram(skyboxShader);
+	glDeleteProgram(trackShader);
+	glDeleteProgram(waterShader);
 }
 
 GLFWwindow* Window::createWindow(int width, int height)
@@ -434,7 +454,7 @@ void Window::resizeCallback(GLFWwindow* window, int w, int h)
 	glViewport(0, 0, width, height);
 
 	// Set the projection matrix.
-	projection = glm::perspective(glm::radians(fovy),
+	projection = glm::perspective(glm::radians(camera.Zoom),
 		(float)width / (float)height, near, far);
 }
 
@@ -498,7 +518,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glm::mat4 model;
+	glm::mat4 model = glm::mat4(1.0f);
 	view = camera.GetViewMatrix();
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
 
@@ -582,7 +602,17 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(trackViewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(trackProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniform3fv(trackColorLoc, 1, glm::value_ptr(color));
-	track->draw(trackShader);
+	//track->draw(trackShader);
+
+	// Water
+	glUseProgram(waterShader);
+	model = water->getModel();
+	view = camera.GetViewMatrix();
+	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
+	glUniformMatrix4fv(waterProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(waterViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(waterModelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	water->draw(waterShader);
 
 	// Skybox
 	// draw skybox as last
@@ -591,7 +621,7 @@ void Window::displayCallback(GLFWwindow* window)
 	view = glm::mat4(glm::mat3(view)); // remove translation from the view matrix
 	glUniformMatrix4fv(sb_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(sb_projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-	skybox->draw(skyboxShader);
+	//skybox->draw(skyboxShader);
 	glDepthFunc(GL_LESS); // set depth function back to default
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
@@ -812,7 +842,5 @@ void Window::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 
 void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	//currentObj->translate(glm::vec3(0, 0, yoffset));
 	camera.ProcessMouseScroll(yoffset);
-	//robot->translate(glm::vec3(0, 0, yoffset));
 }

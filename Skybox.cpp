@@ -113,18 +113,7 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	// Unbind from the VAO.
 	glBindVertexArray(0);
-	/*
-	std::vector<std::string> faces
-	{
-		"mp_blood/blood_ft.jpg",
-		"mp_blood/blood_bk.jpg",
-		"mp_blood/blood_up.jpg",
-		"mp_blood/blood_dn.jpg",
-		"mp_blood/blood_rt.jpg",
-		"mp_blood/blood_lf.jpg"
-	};
-	*/
-
+	
 	std::vector<std::string> faces
 	{
 		"resources/skybox/posx.jpg",
@@ -134,6 +123,18 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 		"resources/skybox/posz.jpg",
 		"resources/skybox/negz.jpg"
 	};
+	
+	/*
+	std::vector<std::string> faces
+	{
+		"resources/skybox/side.jpeg",
+		"resources/skybox/side.jpeg",
+		"resources/skybox/top.jpeg",
+		"resources/skybox/bottom.jpeg",
+		"resources/skybox/side.jpeg",
+		"resources/skybox/side.jpeg"
+	};
+	*/
 
 	cubemapTexture = loadCubemap(faces);
 }

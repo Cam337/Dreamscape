@@ -119,12 +119,12 @@ void Track::draw(GLuint shaderProgram)
 	}
 
 	
+	/*
 	for (AnchorPoint* anchorPoint : anchorPoints)
 	{
 		anchorPoint->draw(shaderProgram);
 	}
 
-	/*
 	for (TangentPoint* tangentPoint : tangentPoints)
 	{
 		tangentPoint->draw(shaderProgram);
