@@ -12,8 +12,8 @@ Water::Water(float x, float z, float h) :
 		glm::vec3(x + TILE_SIZE, h, z + TILE_SIZE),
 	};
 	*/
-
-	model = glm::scale(glm::vec3(TILE_SIZE));
+	model = glm::mat4(1.0f);
+	//model = glm::scale(glm::vec3(TILE_SIZE));
 
 	std::vector<glm::vec3> vertexBuffer = 
 	{
@@ -23,10 +23,10 @@ Water::Water(float x, float z, float h) :
 		glm::vec3(1, 0, 1)
 	};
 
-	std::vector<glm::vec3> faces =
+	std::vector<glm::ivec3> indexBuffer =
 	{
-		glm::vec3(0, 1, 2),
-		glm::vec3(1, 3, 2)
+		glm::ivec3(0, 1, 2),
+		glm::ivec3(1, 3, 2)
 	};
 
 	// Generate a vertex array (VAO) and a vertex buffer objects (VBO).
@@ -47,7 +47,7 @@ Water::Water(float x, float z, float h) :
 	// Bind to the EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	// Pass in the data
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::ivec3) * faces.size(), faces.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(glm::ivec3) * indexBuffer.size(), indexBuffer.data(), GL_STATIC_DRAW);
 
 	// Enable vertex attribute 0. 
 	// We will be able to access points through it.

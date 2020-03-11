@@ -8,7 +8,7 @@ namespace
 {
 	int width, height;
 	glm::vec3 lastPoint;
-	std::string windowTitle("GLFW Starter Project");
+	std::string windowTitle("Dreamscape");
 
 	// timing
 	float deltaTime = 0.0f;
@@ -214,7 +214,7 @@ bool Window::initializeObjects()
 
 
 	cube = new Cube(100.0f);
-	/*
+	
 	// Create a cube of size 5.
 	// cube = new Cube(5.0f);
 	// Create a point cloud consisting of cube vertices.
@@ -247,7 +247,6 @@ bool Window::initializeObjects()
 	pointLight->setLightColor(glm::vec3(1.0f, 0.5f, 0.6f));
 	pointLight->translate(glm::vec3(0.5f, 0.5f, 0.5f));
 	pointLight->scale(0.2f);
-	*/
 
 	// Scene graph Robot
 	glm::mat4 transform = glm::mat4(1.0f);
@@ -345,7 +344,7 @@ bool Window::initializeObjects()
 			newRobot->addChild(robot);
 		}
 
-	// currentObj = bunny;
+	currentObj = bunny;
 
 	// Skybox
 	skybox = new Skybox(view, projection);
@@ -460,6 +459,7 @@ void Window::resizeCallback(GLFWwindow* window, int w, int h)
 
 void Window::idleCallback()
 {
+	/*
 	// Perform any updates as necessary. 
 	bodyT->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 1.0f)));
 	headT->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.5f), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -501,6 +501,7 @@ void Window::idleCallback()
 		robotSquad->translate(direction);
 		pointCounter++;
 	}
+	*/
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -521,6 +522,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glm::mat4 model = glm::mat4(1.0f);
 	view = camera.GetViewMatrix();
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
+	glm::vec3 color(1.0f);
 
 	glUseProgram(program);
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -528,7 +530,6 @@ void Window::displayCallback(GLFWwindow* window)
 	// Render the object.
 	robotSquad->draw(program, glm::mat4(1.0f));
 	
-	/*
 	glm::vec3 lightPos = pointLight->getLightPosition();
 	glm::vec3 viewPos = camera.getPosition();
 	glUniform3fv(lightPosLoc, 1, glm::value_ptr(lightPos));
@@ -573,36 +574,35 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniform3fv(materialSpecularLoc, 1, glm::value_ptr(materialSpecular));
 	glUniform1f(materialShininessLoc, shininess);
 	
-	//glm::mat4 model = currentObj->getModel();
-	//glm::vec3 color = currentObj->getColor();
+	model = currentObj->getModel();
+	color = currentObj->getColor();
 
-	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::mat4(1.0f);
 	glUniformMatrix4fv(phongProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(phongViewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(phongModelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	//glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+	currentObj->draw();
 
 	glUseProgram(program);
 	model = pointLight->getModel();
-	glm::vec3 color = pointLight->getLightColor();
+	color = pointLight->getLightColor();
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	glUniform3fv(colorLoc, 1, glm::value_ptr(color));
 	pointLight->draw();
-	*/
 
 	// Draw Track
 	glUseProgram(trackShader);
 	model = glm::mat4(1);
 	view = camera.GetViewMatrix();
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, 0.1f, 100.0f);
-	glm::vec3 color(0.0f, 0.0f, 1.0f);
+	color = glm::vec3(0.0f, 0.0f, 1.0f);
 	glUniformMatrix4fv(trackModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(trackViewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(trackProjectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniform3fv(trackColorLoc, 1, glm::value_ptr(color));
-	//track->draw(trackShader);
+	track->draw(trackShader);
 
 	// Water
 	glUseProgram(waterShader);
@@ -613,7 +613,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(waterViewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(waterModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	water->draw(waterShader);
-
+	
 	// Skybox
 	// draw skybox as last
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
@@ -621,7 +621,7 @@ void Window::displayCallback(GLFWwindow* window)
 	view = glm::mat4(glm::mat3(view)); // remove translation from the view matrix
 	glUniformMatrix4fv(sb_viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(sb_projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-	//skybox->draw(skyboxShader);
+	skybox->draw(skyboxShader);
 	glDepthFunc(GL_LESS); // set depth function back to default
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
