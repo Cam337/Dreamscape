@@ -459,7 +459,6 @@ void Window::resizeCallback(GLFWwindow* window, int w, int h)
 
 void Window::idleCallback()
 {
-	/*
 	// Perform any updates as necessary. 
 	bodyT->update(glm::rotate(glm::mat4(1.0f), glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 1.0f)));
 	headT->update(glm::rotate(glm::mat4(1.0f), glm::radians(0.5f), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -477,7 +476,8 @@ void Window::idleCallback()
 	counter++;
 	if (counter >= DURATION)
 		counter = 0;
-		
+	
+	/*
 	// Move squad along track
 	// counter for bezier curve
 	// counter for each point on bezier curve
@@ -528,7 +528,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	// Render the object.
-	robotSquad->draw(program, glm::mat4(1.0f));
+	robot->draw(program, glm::mat4(1.0f));
 	
 	glm::vec3 lightPos = pointLight->getLightPosition();
 	glm::vec3 viewPos = camera.getPosition();
@@ -549,6 +549,7 @@ void Window::displayCallback(GLFWwindow* window)
 		diffuseColor = glm::vec3(0.0f);
 		specularColor = glm::vec3(0.0f);
 	}
+	
 
 	glUniform3fv(dirLightAmbientLoc, 1, glm::value_ptr(ambientColor));
 	glUniform3fv(dirLightDiffuseLoc, 1, glm::value_ptr(diffuseColor));
@@ -592,6 +593,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniform3fv(colorLoc, 1, glm::value_ptr(color));
 	pointLight->draw();
 
+	/*
 	// Draw Track
 	glUseProgram(trackShader);
 	model = glm::mat4(1);
@@ -613,6 +615,7 @@ void Window::displayCallback(GLFWwindow* window)
 	glUniformMatrix4fv(waterViewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(waterModelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	water->draw(waterShader);
+	*/
 	
 	// Skybox
 	// draw skybox as last
@@ -726,6 +729,10 @@ void Window::processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		camera.ProcessKeyboard(UP, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
 void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
