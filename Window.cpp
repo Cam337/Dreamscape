@@ -42,7 +42,6 @@ namespace
 
 	// Objects
 	Geometry* bunny;
-	Geometry* dragon;
 
 	//skybox
 	Skybox* skybox;
@@ -84,12 +83,12 @@ bool Window::initializeProgram()
 		return false;
 	}
 
-	//waterShader->use();
-	//waterShader->setInt("reflectionTexture", 0);
-	//waterShader->setInt("refractionTexture", 1); 
+	waterShader->use();
+	waterShader->setInt("reflectionTexture", 0);
+	waterShader->setInt("refractionTexture", 1); 
 
-	skyboxShader->use();
-	skyboxShader->setInt("skybox", 0);
+	//skyboxShader->use();
+	//skyboxShader->setInt("skybox", 0);
 
 	return true;
 }
@@ -104,8 +103,6 @@ bool Window::initializeObjects()
 
 	// Objects
 	bunny = new Geometry("resources/objects/bunny.obj");
-	dragon = new Geometry("resources/objects/dragon.obj");
-	dragon->translate(glm::vec3(1.0f, 1.0f, 1.0f));
 
 	// Skybox
 	skybox = new Skybox(view, projection);
@@ -117,7 +114,6 @@ void Window::cleanUp()
 {
 	// Deallcoate the objects.
 	delete bunny;
-	delete dragon;
 	delete skybox;
 	
 	// Delete the shader programs.
@@ -240,7 +236,7 @@ void Window::displayCallback(GLFWwindow* window)
 	// render the scene
 	water->unbindCurrentFrameBuffer();
 	renderScene(glm::vec4(0, 1, 0, 1000));
-	
+
 	// Render water
 	model = water->getModel();
 	waterShader->use();
@@ -249,16 +245,6 @@ void Window::displayCallback(GLFWwindow* window)
 	waterShader->setMat4("model", model);
 	water->draw();
 	waterShader->stop();
-
-	// Dragon
-	model = dragon->getModel();
-	staticShader->use();
-	staticShader->setMat4("projection", projection);
-	staticShader->setMat4("view", view);
-	staticShader->setMat4("model", model);
-	staticShader->setVec4("clipPlane", glm::vec4(0, 1, 0, 1000));
-	dragon->draw(staticShader->programID, model);
-	staticShader->stop();
 
 	// Gets events, including input such as keyboard and mouse or window resizing.
 	glfwPollEvents();
@@ -288,6 +274,7 @@ void Window::renderScene(glm::vec4 clipPlane)
 	bunny->draw(staticShader->programID, model);
 	staticShader->stop();
 
+	/*
 	// Skybox
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	skyboxShader->use();
@@ -297,6 +284,7 @@ void Window::renderScene(glm::vec4 clipPlane)
 	skybox->draw(skyboxShader->programID);
 	skyboxShader->stop();
 	glDepthFunc(GL_LESS); // set depth function back to default
+	*/
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
