@@ -119,6 +119,8 @@ Water::~Water()
 void Water::draw()
 {
 	glBindVertexArray(vao);
+
+	// Bind textures
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, reflectionTexture);
 	glActiveTexture(GL_TEXTURE1);
@@ -127,7 +129,17 @@ void Water::draw()
 	glBindTexture(GL_TEXTURE_2D, dudvTexture);
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, normalMapTexture);
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, refractionDepthTexture);
+
+	// Enable alpha blend
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Render water
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	
+	glEnable(GL_BLEND);
 	glBindVertexArray(0);
 }
 

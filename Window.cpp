@@ -89,6 +89,7 @@ bool Window::initializeProgram()
 	waterShader->setInt("refractionTexture", 1);
 	waterShader->setInt("dudvMap", 2);
 	waterShader->setInt("normalMap", 3);
+	waterShader->setInt("depthMap", 4);
 
 
 	//skyboxShader->use();
@@ -233,7 +234,7 @@ void Window::displayCallback(GLFWwindow* window)
 	float distance = 2 * (camera.Position.y - water->getHeight());
 	camera.Position.y -= distance;
 	camera.invertPitch();
-	renderScene(glm::vec4(0, 1, 0, -(water->getHeight())));
+	renderScene(glm::vec4(0, 1, 0, -(water->getHeight()))); // can add offest to make edges smoother
 	camera.Position.y += distance;
 	camera.invertPitch();
 	
