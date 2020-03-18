@@ -44,7 +44,7 @@ private:
 public:
 	Geometry();
 	Geometry(std::string objFilename, GLfloat pointSize, glm::vec3 rotationAxis);
-	Geometry(std::string objFilename, GLfloat pointSize);
+	Geometry(std::string objFilename);
 	~Geometry();
 
 	void parseOBJFile(std::string objFilename);
@@ -73,6 +73,7 @@ public:
 	void setShininess(float shine);
 
 	// Getters
+	glm::mat4 getModel();
 	std::vector<glm::vec3> getPoints();
 	std::vector<glm::vec3> getNormals();
 	GLfloat getPointSize();

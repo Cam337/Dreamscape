@@ -7,7 +7,7 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 {
 	// Model matrix. Since the original size of the cube is 2, in order to
 	// have a cube of some size, we need to scale the cube by size / 2.
-	model = glm::mat4(1);
+	model = glm::mat4(1.0f);
 	view = glm::mat4(glm::mat3(view)); // remove translation from the view matrix
 
 	// The color of the cube. Try setting it to something else!
@@ -83,8 +83,8 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 
 	};
 
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
 	glGenVertexArrays(1, &vao);
@@ -128,12 +128,12 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 
 	std::vector<std::string> faces
 	{
-		"resources/skybox/oceansky/posx.jpg",
-		"resources/skybox/oceansky/negx.jpg",
-		"resources/skybox/oceansky/posy.jpg",
-		"resources/skybox/oceansky/negy.jpg",
-		"resources/skybox/oceansky/posz.jpg",
-		"resources/skybox/oceansky/negz.jpg"
+		"resources/skybox/miramar/posx.jpg",
+		"resources/skybox/miramar/negx.jpg",
+		"resources/skybox/miramar/posy.jpg",
+		"resources/skybox/miramar/negy.jpg",
+		"resources/skybox/miramar/posz.jpg",
+		"resources/skybox/miramar/negz.jpg"
 	};
 
 	

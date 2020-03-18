@@ -12,8 +12,7 @@ Water::Water(float x, float z, float h) :
 		glm::vec3(x + TILE_SIZE, h, z + TILE_SIZE),
 	};
 	*/
-	model = glm::mat4(1.0f);
-	//model = glm::scale(glm::vec3(TILE_SIZE));
+	model = glm::scale(glm::vec3(TILE_SIZE));
 
 	std::vector<glm::vec3> vertexBuffer = 
 	{
@@ -53,16 +52,23 @@ Water::Water(float x, float z, float h) :
 	// We will be able to access points through it.
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), 0);
+
+	// Initialize Frame Buffer Objects
+	initialiseReflectionFrameBuffer();
+	initialiseRefractionFrameBuffer();
 }
 
 Water::~Water()
 {
 }
 
-void Water::draw(GLuint shaderProgram)
+void Water::draw()
 {
-	glUseProgram(shaderProgram);
 	glBindVertexArray(vao);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, reflectionTexture);
+	//glActiveTexture(GL_TEXTURE1);
+	//glBindTexture(GL_TEXTURE_2D, refractionTexture);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 }

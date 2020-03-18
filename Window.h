@@ -31,6 +31,12 @@
 #include "Track.h"
 #include "Water.h"
 
+// Render Engine Classes
+#include "RawModel.h"
+#include "Loader.h"
+#include "Renderer.h"
+
+
 class Window
 {
 public:
@@ -48,6 +54,7 @@ public:
 	static void idleCallback();
 	// This renders to the glfw window. Add draw calls here
 	static void displayCallback(GLFWwindow*);
+	static void renderScene(glm::vec4 clipPlane);
 	// Add your key press event handling here
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void processInput(GLFWwindow* window);

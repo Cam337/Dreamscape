@@ -1,6 +1,6 @@
 #include "Geometry.h"
 
-Geometry::Geometry(std::string objFilename, GLfloat pointSize)
+Geometry::Geometry(std::string objFilename)
 	: pointSize(pointSize), rotationAxis(rotationAxis), 
 		translationMat(glm::mat4(1.0f)), scaleMat(glm::mat4(1.0f)), rotationMat(glm::mat4(1.0f)),
 		ambient(glm::vec3(0.2f)), diffuse(glm::vec3(0.5f)), specular(glm::vec3(1.0f)), shininess(32.0f)
@@ -659,6 +659,11 @@ void Geometry::setSpecular(glm::vec3 color)
 void Geometry::setShininess(float shine)
 {
 	shininess = shine;
+}
+
+glm::mat4 Geometry::getModel()
+{
+	return model;
 }
 
 std::vector<glm::vec3> Geometry::getPoints()
