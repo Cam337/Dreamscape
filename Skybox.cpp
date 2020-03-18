@@ -1,6 +1,6 @@
 #include "Skybox.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
 
 Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 	view(view), projection(projection)
@@ -192,6 +192,7 @@ GLuint Skybox::loadCubemap(std::vector<std::string> faces)
 	int width, height, nrChannels;
 	for (unsigned int i = 0; i < faces.size(); i++)
 	{
+		/*
 		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)
 		{
@@ -203,6 +204,7 @@ GLuint Skybox::loadCubemap(std::vector<std::string> faces)
 			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
 			stbi_image_free(data);
 		}
+		*/
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

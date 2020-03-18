@@ -13,12 +13,16 @@
 
 #include <vector>
 
+#include <iostream>
+
 class Water
 {
 private:
 	glm::mat4 model;
 	float xPos, zPos, height;
 	GLuint vao, vbo, ebo;
+
+	const float WAVE_SPEED = 0.03f;
 
 	// Frame Buffer Object
 	static const int REFLECTION_WIDTH = 320;
@@ -27,6 +31,8 @@ private:
 	static const int REFRACTION_WIDTH = 320;
 	static const int REFRACTION_HEIGHT = 180;
 
+	float moveFactor = 0;
+
 	GLuint reflectionFrameBuffer;
 	GLuint reflectionTexture;
 	GLuint reflectionDepthBuffer;
@@ -34,6 +40,9 @@ private:
 	GLuint refractionFrameBuffer;
 	GLuint refractionTexture;
 	GLuint refractionDepthTexture;
+
+	GLuint dudvTexture;
+	GLuint normalMapTexture;
 
 	void initialiseReflectionFrameBuffer() {
 		reflectionFrameBuffer = createFrameBuffer();
@@ -123,6 +132,13 @@ public:
 		return zPos;
 	}
 
+	float updateMoveFactor(float time) {
+		moveFactor += WAVE_SPEED * time;
+		moveFactor = fmod(moveFactor, 1.0f);
+		return moveFactor;
+
+	}
+
 	// Frame Buffer Object
 	void cleanUp() {//call when closing the game
 		glDeleteFramebuffers(1, &reflectionFrameBuffer);
@@ -156,6 +172,10 @@ public:
 
 	GLuint getRefractionDepthTexture() {//get the resulting depth texture
 		return refractionDepthTexture;
+	}
+
+	GLuint getDudvTexture() {
+		return dudvTexture;
 	}
 };
 

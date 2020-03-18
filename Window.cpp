@@ -42,6 +42,7 @@ namespace
 
 	// Objects
 	Geometry* bunny;
+	Geometry* sphere;
 
 	//skybox
 	Skybox* skybox;
@@ -85,10 +86,14 @@ bool Window::initializeProgram()
 
 	waterShader->use();
 	waterShader->setInt("reflectionTexture", 0);
-	waterShader->setInt("refractionTexture", 1); 
+	waterShader->setInt("refractionTexture", 1);
+	waterShader->setInt("dudvMap", 2);
+	waterShader->setInt("normalMap", 3);
+
 
 	//skyboxShader->use();
 	//skyboxShader->setInt("skybox", 0);
+
 
 	return true;
 }
@@ -103,6 +108,9 @@ bool Window::initializeObjects()
 
 	// Objects
 	bunny = new Geometry("resources/objects/bunny.obj");
+	sphere = new Geometry("resources/objects/sphere.obj");
+	sphere->translate(glm::vec3(1.0f, 20.0f, -75.0f));
+	sphere->scale(5.0f);
 
 	// Skybox
 	skybox = new Skybox(view, projection);
@@ -239,10 +247,19 @@ void Window::displayCallback(GLFWwindow* window)
 
 	// Render water
 	model = water->getModel();
+	float moveFactor = water->updateMoveFactor(deltaTime);
+	glm::vec3 cameraPosition = camera.Position;
+	glm::vec3 lightPosition(1.0f, 20.0f, -75.0f);
+	//glm::vec3 lightColor(1.0f, 0.73f, 0.08f);
+	glm::vec3 lightColor(0.3f);
 	waterShader->use();
 	waterShader->setMat4("projection", projection);
 	waterShader->setMat4("view", view);
 	waterShader->setMat4("model", model);
+	waterShader->setFloat("moveFactor", moveFactor);
+	waterShader->setVec3("cameraPosition", cameraPosition);
+	waterShader->setVec3("lightPosition", lightPosition);
+	waterShader->setVec3("lightColor", lightColor);
 	water->draw();
 	waterShader->stop();
 
@@ -272,6 +289,16 @@ void Window::renderScene(glm::vec4 clipPlane)
 	staticShader->setMat4("model", model);
 	staticShader->setVec4("clipPlane", clipPlane);
 	bunny->draw(staticShader->programID, model);
+	staticShader->stop();
+
+	// Sphere
+	model = sphere->getModel();
+	staticShader->use();
+	staticShader->setMat4("projection", projection);
+	staticShader->setMat4("view", view);
+	staticShader->setMat4("model", model);
+	staticShader->setVec4("clipPlane", clipPlane);
+	sphere->draw(staticShader->programID, model);
 	staticShader->stop();
 
 	/*
