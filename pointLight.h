@@ -38,7 +38,7 @@ private:
 	glm::vec3 lightPosition;
 	
 public:
-	PointLight(std::string objFilename, GLfloat pointSize, glm::vec3 rotationAxis);
+	PointLight(std::string objFilename, glm::vec3 rotationAxis);
 	~PointLight();
 
 	void parseOBJFile(std::string objFilename);

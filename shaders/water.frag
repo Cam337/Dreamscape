@@ -17,9 +17,9 @@ uniform vec3 lightColor;
 // Outputs. The first vec4 type output determines the color of the fragment
 out vec4 fragColor;
 
-const float waveStrength = 0.02;
+const float waveStrength = 0.04;
 const float shineDamper = 20.0;
-const float reflectivity = 0.6;
+const float reflectivity = 0.5;
 
 void main()
 {
@@ -28,7 +28,7 @@ void main()
 	vec2 refractTexCoords = vec2(ndc.x, ndc.y);
 
 	float near = 0.1;
-	float far = 100.0;
+	float far = 1000.0;
 	float depth = texture(depthMap, refractTexCoords).r;
 	float floorDistance = 2.0 * near * far / (far + near - (2.0 * depth - 1.0) * (far - near));
 	depth = gl_FragCoord.z;

@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+#include "Image.h"
+
 class Water
 {
 private:

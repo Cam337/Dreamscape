@@ -30,6 +30,7 @@
 #include "Geometry.h"
 #include "Track.h"
 #include "Water.h"
+#include "Terrain.h"
 
 // Render Engine Classes
 #include "RawModel.h"

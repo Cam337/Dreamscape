@@ -41,22 +41,28 @@ namespace
 	Water* water;
 
 	// Objects
-	Geometry* bunny;
-	Geometry* sphere;
+	Geometry* bear;
+	PointLight* sun;
 
-	//skybox
+	// Terrain
+	Terrain* terrain;
+
+	// Skybox
 	Skybox* skybox;
 
 	Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 	float near = 0.1f;
-	float far = 100.0f;
+	float far = 1000.0f;
 	glm::mat4 view = camera.GetViewMatrix(); // View matrix, defined by eye, center and up.
 	glm::mat4 projection; // Projection matrix.
 
 	// Shaders
 	Shader* waterShader; // The shader program id.
 	Shader* staticShader;
+	Shader* terrainShader;
 	Shader* skyboxShader;
+	Shader* lightShader;
+	Shader* phongShader;
 	
 };
 
@@ -65,7 +71,10 @@ bool Window::initializeProgram()
 	// Create a shader program with a vertex shader and a fragment shader.
 	waterShader = new Shader("shaders/water.vert", "shaders/water.frag");
 	staticShader = new Shader("shaders/shader.vert", "shaders/shader.frag");
+	terrainShader = new Shader("shaders/terrain.vert", "shaders/terrain.frag");
 	skyboxShader = new Shader("shaders/skybox.vert", "shaders/skybox.frag");
+	lightShader = new Shader("shaders/light.vert", "shaders/light.frag");
+	phongShader = new Shader("shaders/phongShader.vert", "shaders/phongShader.frag");
 
 	// Check the shader programs.
 	if (!(waterShader->programID))
@@ -74,6 +83,11 @@ bool Window::initializeProgram()
 		return false;
 	}
 	if (!(staticShader->programID))
+	{
+		std::cerr << "Failed to initialize shader program" << std::endl;
+		return false;
+	}
+	if (!(terrainShader->programID))
 	{
 		std::cerr << "Failed to initialize shader program" << std::endl;
 		return false;
@@ -91,9 +105,11 @@ bool Window::initializeProgram()
 	waterShader->setInt("normalMap", 3);
 	waterShader->setInt("depthMap", 4);
 
+	terrainShader->use();
+	terrainShader->setInt("grasstexture", 6);
 
-	//skyboxShader->use();
-	//skyboxShader->setInt("skybox", 0);
+	skyboxShader->use();
+	skyboxShader->setInt("skybox", 5);
 
 
 	return true;
@@ -108,10 +124,19 @@ bool Window::initializeObjects()
 	water = new Water(0,0,0);
 
 	// Objects
-	bunny = new Geometry("resources/objects/bunny.obj");
-	sphere = new Geometry("resources/objects/sphere.obj");
-	sphere->translate(glm::vec3(1.0f, 20.0f, -75.0f));
-	sphere->scale(5.0f);
+	bear = new Geometry("resources/objects/bear.obj");
+	bear->setAmbient(glm::vec3(0.3f, 0.3f, 0.7f));
+	bear->setDiffuse(glm::vec3(0.5f, 0.5f, 1.0f));
+	bear->setSpecular(glm::vec3(0.1f));
+	bear->setShininess(32.0f);
+
+	sun = new PointLight("resources/objects/sphere.obj", glm::vec3(1.0f, 0.0f, 0.0f));
+	sun->translate(glm::vec3(0.0f, 75.0f, 0.0f));
+	sun->scale(5.0f);
+	sun->setLightColor(glm::vec3(1.0f, 0.82f, 0.08f));
+
+	// Terrain
+	terrain = new Terrain(0,0,0,0);
 
 	// Skybox
 	skybox = new Skybox(view, projection);
@@ -122,7 +147,7 @@ bool Window::initializeObjects()
 void Window::cleanUp()
 {
 	// Deallcoate the objects.
-	delete bunny;
+	delete bear;
 	delete skybox;
 	
 	// Delete the shader programs.
@@ -208,7 +233,7 @@ void Window::resizeCallback(GLFWwindow* window, int w, int h)
 
 void Window::idleCallback()
 {
-	
+	sun->update();
 }
 
 void Window::displayCallback(GLFWwindow* window)
@@ -247,6 +272,8 @@ void Window::displayCallback(GLFWwindow* window)
 	renderScene(glm::vec4(0, 1, 0, 1000));
 
 	// Render water
+	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, near, far);
+	view = camera.GetViewMatrix();
 	model = water->getModel();
 	float moveFactor = water->updateMoveFactor(deltaTime);
 	glm::vec3 cameraPosition = camera.Position;
@@ -276,33 +303,63 @@ void Window::renderScene(glm::vec4 clipPlane)
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, near, far);
 	view = camera.GetViewMatrix();
 	glm::mat4 model(1.0f);
-	glm::vec3 color(0.0f, 0.0f, 1.0f);
+	glm::vec3 color(1.0f, 1.0f, 1.0f);
 
 	// Prepare to render. Clears the color and depth buffers.
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
-	// Bunny
-	model = bunny->getModel();
+
+	// Bear
+	model = bear->getModel();
+	//material properties
+	glm::vec3 viewPos = camera.Position;
+	glm::vec3 materialAmbient = bear->getAmbient();
+	glm::vec3 materialDiffuse = bear->getDiffuse();
+	glm::vec3 materialSpecular = bear->getSpecular();
+	//light properties
+	glm::vec3 lightPosition = sun->getColor();
+	glm::vec3 lightDirection = sun->getLightPosition();
+	glm::vec3 lightColor = sun->getColor();
+	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
+	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
+	glm::vec3 specularColor = glm::vec3(1.0f);
+	float shininess = bear->getShininess();
 	staticShader->use();
 	staticShader->setMat4("projection", projection);
 	staticShader->setMat4("view", view);
 	staticShader->setMat4("model", model);
 	staticShader->setVec4("clipPlane", clipPlane);
-	bunny->draw(staticShader->programID, model);
+	bear->draw(staticShader->programID, model);
 	staticShader->stop();
 
-	// Sphere
-	model = sphere->getModel();
-	staticShader->use();
-	staticShader->setMat4("projection", projection);
-	staticShader->setMat4("view", view);
-	staticShader->setMat4("model", model);
-	staticShader->setVec4("clipPlane", clipPlane);
-	sphere->draw(staticShader->programID, model);
-	staticShader->stop();
+	// Sun
+	model = sun->getModel();
+	color = sun->getColor();
+	lightShader->use();
+	lightShader->setMat4("projection", projection);
+	lightShader->setMat4("view", view);
+	lightShader->setMat4("model", model);
+	lightShader->setVec4("clipPlane", clipPlane);
+	lightShader->setVec3("color", color);
+	sun->draw();
+	lightShader->stop();
 
-	/*
+	// Draw Terrain
+	model = glm::mat4(1.0f);
+	glm::vec3 cameraPosition = camera.Position;
+	lightPosition = sun->getLightPosition();
+	terrainShader->use();
+	terrainShader->setMat4("projection", projection);
+	terrainShader->setMat4("view", view);
+	terrainShader->setMat4("model", model);
+	terrainShader->setVec3("cameraPosition", cameraPosition);
+	terrainShader->setVec3("lightPosition", lightPosition);
+	terrainShader->setVec4("clipPlane", clipPlane);
+	terrain->draw();
+
 	// Skybox
 	glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
 	skyboxShader->use();
@@ -312,7 +369,6 @@ void Window::renderScene(glm::vec4 clipPlane)
 	skybox->draw(skyboxShader->programID);
 	skyboxShader->stop();
 	glDepthFunc(GL_LESS); // set depth function back to default
-	*/
 }
 
 void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

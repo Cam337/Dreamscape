@@ -1,7 +1,4 @@
 #include "Water.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 
 Water::Water(float x, float z, float h) :
 	xPos(x), zPos(z), height(h)
@@ -75,7 +72,7 @@ Water::Water(float x, float z, float h) :
 	int width, height, nrChannels;
 	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
 	std::string fileName = "resources/textures/waterDUDV.png";
-	unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
+	unsigned char* data = Image::loadImage(fileName.c_str(), &width, &height, &nrChannels);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -85,7 +82,7 @@ Water::Water(float x, float z, float h) :
 	{
 		std::cout << "Failed to load texture" << std::endl;
 	}
-	stbi_image_free(data);
+	Image::freeImage(data);
 
 	// Load dudvMap
 	glGenTextures(1, &normalMapTexture);
@@ -99,7 +96,7 @@ Water::Water(float x, float z, float h) :
 	// load image, create texture and generate mipmaps
 	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
 	fileName = "resources/textures/normalMap.png";
-	data = stbi_load(fileName.c_str(), &width, &height, &nrChannels, 0);
+	data = Image::loadImage(fileName.c_str(), &width, &height, &nrChannels);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -109,7 +106,7 @@ Water::Water(float x, float z, float h) :
 	{
 		std::cout << "Failed to load texture" << std::endl;
 	}
-	stbi_image_free(data);
+	Image::freeImage(data);
 }
 
 Water::~Water()

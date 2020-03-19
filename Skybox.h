@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "Object.h"
+#include "Image.h"
 
 class Skybox
 {

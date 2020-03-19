@@ -21,7 +21,6 @@ in vec3 Normal;
   
 uniform vec3 viewPos;
 uniform Material material;
-uniform Light dirLight;
 uniform Light light;
 uniform bool normalColorMode;
 
@@ -33,23 +32,6 @@ void main()
 	vec3 viewDir;
 	vec3 reflectDir;
 	float spec;
-
-	// DIRECTIONAL LIGHT
-
-	// ambient
-    vec3 dirAmbient = dirLight.ambient * material.ambient;
-  	
-    // diffuse 
-    norm = normalize(Normal);
-    lightDir = normalize(-light.direction);
-    diff = max(dot(norm, lightDir), 0.0);
-    vec3 dirDiffuse = dirLight.diffuse * (diff * material.diffuse);
-    
-    // specular
-    viewDir = normalize(viewPos - FragPos);
-    reflectDir = reflect(-lightDir, norm);  
-    spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 dirSpecular = dirLight.specular * (spec * material.specular);
 
 	// POINT LIGHT
 
@@ -75,7 +57,7 @@ void main()
 	diffuse *= attenuation;
 	specular *= attenuation;
 
-    vec3 result = dirAmbient + dirDiffuse + dirSpecular + ambient + diffuse + specular;
+    vec3 result = ambient + diffuse + specular;
 	if(normalColorMode)
 	{
 		vec3 norm = normalize(Normal);

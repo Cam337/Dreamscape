@@ -1,9 +1,8 @@
 #include "pointLight.h"
 
-PointLight::PointLight(std::string objFilename, GLfloat pointSize, glm::vec3 rotationAxis)
-	: pointSize(pointSize), rotationAxis(rotationAxis), 
-		translationMat(glm::mat4(1.0f)), scaleMat(glm::mat4(1.0f)), rotationMat(glm::mat4(1.0f)),
-		lightColor(glm::vec3(1.0f)), lightPosition(glm::vec3(0.0f))
+PointLight::PointLight(std::string objFilename, glm::vec3 rotationAxis)
+	: rotationAxis(rotationAxis), translationMat(glm::mat4(1.0f)), scaleMat(glm::mat4(1.0f)), rotationMat(glm::mat4(1.0f)), 
+	lightColor(glm::vec3(1.0f)), lightPosition(glm::vec3(0.0f))
 {
 	/*
 	 * TODO: Section 2: Currently, all the points are hard coded below.
@@ -320,7 +319,7 @@ void PointLight::draw()
 void PointLight::update()
 {
 	// Spin the cube by 1 degree.
-	spin(0.1f, rotationAxis);
+	rotate(0.1f, rotationAxis);
 	/*
 	 * TODO: Section 3: Modify this function to spin the dragon and bunny about
 	 * different axes. Look at the spin function for an idea

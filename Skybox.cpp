@@ -83,9 +83,6 @@ Skybox::Skybox(glm::mat4 view, glm::mat4 projection) :
 
 	};
 
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
-
 	// Generate a vertex array (VAO) and two vertex buffer objects (VBO).
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(2, vbos);
@@ -162,7 +159,7 @@ void Skybox::draw(GLuint shader)
 	*/
 
 	glBindVertexArray(vao); // Bind to the VAO.
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0); // Unbind from the VAO.
@@ -192,19 +189,17 @@ GLuint Skybox::loadCubemap(std::vector<std::string> faces)
 	int width, height, nrChannels;
 	for (unsigned int i = 0; i < faces.size(); i++)
 	{
-		/*
-		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		unsigned char *data = Image::loadImage(faces[i].c_str(), &width, &height, &nrChannels);
 		if (data)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
+			Image::freeImage(data);
 		}
 		else
 		{
 			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
+			Image::freeImage(data);
 		}
-		*/
 	}
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
