@@ -25,9 +25,7 @@ namespace
 
 	// Boolean switches
 	bool normalColorMode = false;
-	bool pointLightOn = true;
-	bool pointLightMovement = false;
-	bool directionalLightOn = true;
+	bool dudvMode = false;
 	
 	// FPS Mouse Variables
 	bool initCursorPos = true;
@@ -125,10 +123,12 @@ bool Window::initializeObjects()
 
 	// Objects
 	bear = new Geometry("resources/objects/bear.obj");
-	bear->setAmbient(glm::vec3(0.3f, 0.3f, 0.7f));
-	bear->setDiffuse(glm::vec3(0.5f, 0.5f, 1.0f));
+	bear->setAmbient(glm::vec3(0.41f, 0.34f, 0.41f));
+	bear->setDiffuse(glm::vec3(0.82f, 0.68f, 0.82f));
 	bear->setSpecular(glm::vec3(0.1f));
 	bear->setShininess(32.0f);
+	bear->translate(glm::vec3(0.0f, 8.0f, -45.0f));
+	bear->scale(10.0f);
 
 	sun = new PointLight("resources/objects/sphere.obj", glm::vec3(1.0f, 0.0f, 0.0f));
 	sun->translate(glm::vec3(0.0f, 75.0f, 0.0f));
@@ -247,7 +247,7 @@ void Window::displayCallback(GLFWwindow* window)
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)width / (float)height, near, far);
 	view = camera.GetViewMatrix();
 	glm::mat4 model(1.0f);
-	glm::vec3 color(0.0f, 0.0f, 1.0f);
+	glm::vec3 color(1.0f, 0.82f, 0.2f);
 
 	// Process input for FPS Camera
 	processInput(window);
@@ -288,6 +288,8 @@ void Window::displayCallback(GLFWwindow* window)
 	waterShader->setVec3("cameraPosition", cameraPosition);
 	waterShader->setVec3("lightPosition", lightPosition);
 	waterShader->setVec3("lightColor", lightColor);
+	waterShader->setInt("normalColorMode", normalColorMode);
+	waterShader->setInt("dudvMode", dudvMode);
 	water->draw();
 	waterShader->stop();
 
@@ -319,25 +321,35 @@ void Window::renderScene(glm::vec4 clipPlane)
 	glm::vec3 materialAmbient = bear->getAmbient();
 	glm::vec3 materialDiffuse = bear->getDiffuse();
 	glm::vec3 materialSpecular = bear->getSpecular();
+	float materialShininess = bear->getShininess();
 	//light properties
-	glm::vec3 lightPosition = sun->getColor();
-	glm::vec3 lightDirection = sun->getLightPosition();
-	glm::vec3 lightColor = sun->getColor();
+	glm::vec3 lightPosition = sun->getLightPosition();
+	glm::vec3 lightColor = sun->getLightColor();
 	glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f); // decrease the influence
 	glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); // low influence
 	glm::vec3 specularColor = glm::vec3(1.0f);
 	float shininess = bear->getShininess();
-	staticShader->use();
-	staticShader->setMat4("projection", projection);
-	staticShader->setMat4("view", view);
-	staticShader->setMat4("model", model);
-	staticShader->setVec4("clipPlane", clipPlane);
-	bear->draw(staticShader->programID, model);
-	staticShader->stop();
+	phongShader->use();
+	phongShader->setVec3("viewPos", viewPos);
+	phongShader->setInt("normalColorMode", normalColorMode);
+	phongShader->setMat4("projection", projection);
+	phongShader->setMat4("view", view);
+	phongShader->setMat4("model", model);
+	phongShader->setVec4("clipPlane", clipPlane);
+	phongShader->setVec3("material.ambient", materialAmbient);
+	phongShader->setVec3("material.diffuse", materialDiffuse);
+	phongShader->setVec3("material.specular", materialSpecular);
+	phongShader->setFloat("material.shininess", materialShininess);
+	phongShader->setVec3("light.position", lightPosition);
+	phongShader->setVec3("light.ambient", ambientColor);
+	phongShader->setVec3("light.diffuse", diffuseColor);
+	phongShader->setVec3("light.specular", specularColor);
+	bear->draw(phongShader->programID, model);
+	phongShader->stop();
 
 	// Sun
 	model = sun->getModel();
-	color = sun->getColor();
+	color = sun->getLightColor();
 	lightShader->use();
 	lightShader->setMat4("projection", projection);
 	lightShader->setMat4("view", view);
@@ -409,19 +421,10 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_1:
-			// Only Directional light(rotating)
-			directionalLightOn = true;
-			pointLightOn = false;
 			break;
 		case GLFW_KEY_2:
-			// Directional and Point Light. Toggle mouse movement for point light
-			directionalLightOn = true;
-			pointLightOn = true;
-			pointLightMovement = !pointLightMovement;
 			break;
 		case GLFW_KEY_3:
-			// Toggle Directional Light
-			directionalLightOn = !directionalLightOn;
 			break;
 		case GLFW_KEY_F1:
 			//currentObj = bunny;
@@ -439,8 +442,12 @@ void Window::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 				std::cout << "Normal color mode on\n";
 			normalColorMode = !normalColorMode;
 			break;
-		case GLFW_KEY_P:
-			//currentObj->updatePointSize(0.8f);
+		case GLFW_KEY_D:
+			if (dudvMode)
+				std::cout << "dudv mode mode off\n";
+			else
+				std::cout << "dudv mode on\n";
+			dudvMode = !dudvMode;
 			break;
 		case GLFW_KEY_Z:
 			//updateViewMatrix(0.8f);

@@ -10,7 +10,6 @@ struct Material {
 
 struct Light {
     vec3 position;
-	vec3 direction;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -36,7 +35,7 @@ void main()
 	// POINT LIGHT
 
     // ambient
-    vec3 ambient = dirLight.ambient * material.ambient;
+    vec3 ambient = light.ambient * material.ambient;
 
     // diffuse 
     norm = normalize(Normal);
@@ -53,11 +52,12 @@ void main()
 	// attenuation
 	float distance = length(light.position - FragPos);
 	float attenuation = 1.0 / (distance);
-	ambient *= attenuation;
-	diffuse *= attenuation;
-	specular *= attenuation;
+	//ambient *= attenuation;
+	//diffuse *= attenuation;
+	//specular *= attenuation;
 
     vec3 result = ambient + diffuse + specular;
+
 	if(normalColorMode)
 	{
 		vec3 norm = normalize(Normal);

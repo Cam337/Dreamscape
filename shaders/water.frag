@@ -13,6 +13,8 @@ uniform sampler2D normalMap;
 uniform sampler2D depthMap;
 uniform float moveFactor;
 uniform vec3 lightColor;
+uniform int normalColorMode;
+uniform int dudvMode;
 
 // Outputs. The first vec4 type output determines the color of the fragment
 out vec4 fragColor;
@@ -71,7 +73,11 @@ void main()
 	fragColor.a = clamp(waterDepth/5.0, 0.0, 1.0);
 	
 	// Debug 
-	//fragColor = normalMapColor;
-	//fragColor = vec4(waterDepth/50.0);
+
+	if(normalColorMode)
+		fragColor = normalMapColor;
+
+	if(dudvMode)
+		fragColor = vec4(distortedTexCoords, 0.0f, 1.0f);
 	
 }
